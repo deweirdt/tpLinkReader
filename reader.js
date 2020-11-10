@@ -50,8 +50,9 @@ amqp.connect('amqp://tplink:tplink@192.168.1.103', function (err, conn) {
     channel.assertExchange(process.env.RABBIT_MQ_EXCHANGE, 'fanout', {
       durable: false
     });
-    channel.assertQueue("tp_link_grafana", {durable: true}, function(err, data) {
-      channel.bindQueue("tp_link_grafana", process.env.RABBIT_MQ_EXCHANGE, '');
+    //Create the queue, so that we don't loose the data (on the first time)
+    channel.assertQueue(process.env.RABBIT_MQ_QUEUE, {durable: true}, function(err, data) {
+      channel.bindQueue(process.env.RABBIT_MQ_QUEUE, process.env.RABBIT_MQ_EXCHANGE, '');
     });
   });
 });
