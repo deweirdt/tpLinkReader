@@ -29,9 +29,6 @@ function processMsg(msg, confirm) {
     influx.writePoints([
         {
             measurement: 'power',
-            tags: { 
-                alias: data.alias
-            },
             fields: {  
                 voltage: data.reading.voltage, 
                 power: data.reading.power, 
@@ -39,7 +36,8 @@ function processMsg(msg, confirm) {
                 daypowerwh: data.reading.daypower_wh,
                 ipaddr: data.ipaddr,
                 deviceID: data.deviceID,
-                model: data.model
+                model: data.model,
+                alias: data.alias
             },
             timestamp: nano.toString(nano.fromISOString(data.time))
         }
