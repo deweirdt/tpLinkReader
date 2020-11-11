@@ -25,8 +25,41 @@ module.exports.publishAMQP = function publishAMQP(data) {
     }
 }
 
-function worker() {
+module.exports.consumeAMQP = function consumeAMQP(exchangeName, queueName, consumeMethod) {
+    
+    try {
+        channel.assertQueue(queueName, {durable: true}, function(err, data) {
+            channel.bindQueue(queueName, exchangeName, '');
+        });
 
+        channel.on("error", function() {
+          console.log("Error on channel");
+        });
+        channel.on("close", function() {
+          console.log("Channel was closed");
+          setTimeout(consumeAMQP, 1000, exchangeName, queueName, consumeMethod);
+        });
+
+        console.log("Channel has been configred exchangeName: %s, queueName: %s", exchangeName, queueName);
+        channel.consume(queueName, function(msg) {
+            //Call the callback function to the user
+            consumeMethod(msg.content.toString(), function(processed) {
+                try{
+                    if(processed) {
+                        console.log("Message got processed, we can ack");
+                    } else {
+                        console.log("Don't do anything I guess, message should remain where it is");
+                    }
+                } catch(e) {
+                    console.log("Exception when consuming data");
+                }
+            })
+        }, {noAck: false});
+    }
+    catch(e) {
+        console.log("Channel is not configured yet");
+        setTimeout(consumeAMQP, 1000, exchangeName, queueName, consumeMethod);
+    }
 }
 
 module.exports.setupAMQPConnection = function setupAMQPConnection() {
@@ -62,18 +95,18 @@ module.exports.setupAMQPConnection = function setupAMQPConnection() {
         channel.assertQueue(process.env.RABBIT_MQ_QUEUE, {durable: true}, function(err, data) {
           channel.bindQueue(process.env.RABBIT_MQ_QUEUE, process.env.RABBIT_MQ_EXCHANGE, '');
         });
-        */
         
         channel.assertQueue(process.env.RABBIT_MQ_QUEUE_TEST, {durable: true}, function(err, data) {
           channel.bindQueue(process.env.RABBIT_MQ_QUEUE_TEST, process.env.RABBIT_MQ_EXCHANGE, '');
         });
+        */
   
         //Process first the local stack
         console.log("Connection established local stack is containing: %d, items", offlinePubQueue.length);
         while(true) {
           queuedMessage = offlinePubQueue.shift();
           if( !queuedMessage ) {
-            console.log("No messges in the queue");
+            console.log("No message in the cached sending queue");
             break;
           }
           publishAMQP(queuedMessage);

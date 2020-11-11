@@ -31,7 +31,7 @@ client.on('device-new', (device) => {
                 voltage: emeterRealtime.voltage,
                 power: emeterRealtime.power,
                 current: emeterRealtime.current,
-                daypower_kwh : dayStats
+                daypower_wh : dayStats
             }
         } 
         amqp.publishAMQP(iotData);
