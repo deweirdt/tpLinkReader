@@ -1,6 +1,6 @@
 const amqp = require('./amqp.controller');
 const Influx = require('influx');
-const { dateToTime } = require('influx/lib/src/grammar');
+const nano = require('nano-seconds');
 require('dotenv').config();
 
 
@@ -25,6 +25,7 @@ function processMsg(msg, confirm) {
     const data = JSON.parse(msg);
     //console.log("Message received: ", data);
     //If message is processed then we can confirm it
+    
     influx.writePoints([
         {
             measurement: 'power',
@@ -40,7 +41,7 @@ function processMsg(msg, confirm) {
                 deviceID: data.deviceID,
                 model: data.model
             },
-            timestamp: Date.parse(data.time)
+            timestamp: nano.toString(nano.fromISOString(data.time))
         }
     ]).then(() => {
         confirm(true);

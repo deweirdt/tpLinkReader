@@ -12,6 +12,7 @@
     "amqplib": "^0.6.0",
     "dotenv": "^8.2.0",
     "influx": "^5.6.3",
+    "nano-seconds": "^1.2.2",
     "tplink-smarthome-api": "^3.1.0"
   }
 }
