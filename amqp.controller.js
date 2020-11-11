@@ -3,7 +3,7 @@ require('dotenv').config();
 let channel = null;
 
 var offlinePubQueue = [];
-module.exports.sendDataToAMQP = function sendDataToAMQP(data) {  
+module.exports.publishAMQP = function publishAMQP(data) {  
   try {
     channel.publish(  process.env.RABBIT_MQ_EXCHANGE,
                       '', 
@@ -23,6 +23,10 @@ module.exports.sendDataToAMQP = function sendDataToAMQP(data) {
       offlinePubQueue.push(data);
       console.log("local stack is containing: %d, items", offlinePubQueue.length);
     }
+}
+
+function worker() {
+
 }
 
 module.exports.setupAMQPConnection = function setupAMQPConnection() {
@@ -54,9 +58,11 @@ module.exports.setupAMQPConnection = function setupAMQPConnection() {
           durable: true
         });
         //Create the queue, so that we don't loose the data (on the first time)
+        /*
         channel.assertQueue(process.env.RABBIT_MQ_QUEUE, {durable: true}, function(err, data) {
           channel.bindQueue(process.env.RABBIT_MQ_QUEUE, process.env.RABBIT_MQ_EXCHANGE, '');
         });
+        */
         
         channel.assertQueue(process.env.RABBIT_MQ_QUEUE_TEST, {durable: true}, function(err, data) {
           channel.bindQueue(process.env.RABBIT_MQ_QUEUE_TEST, process.env.RABBIT_MQ_EXCHANGE, '');
@@ -70,7 +76,7 @@ module.exports.setupAMQPConnection = function setupAMQPConnection() {
             console.log("No messges in the queue");
             break;
           }
-          sendDataToAMQP(queuedMessage);
+          publishAMQP(queuedMessage);
         }
       });
     });
