@@ -47,6 +47,7 @@ module.exports.consumeAMQP = function consumeAMQP(exchangeName, queueName, consu
                 try{
                     if(processed) {
                         console.log("Message got processed, we can ack");
+                        //channel.ack(msg);
                     } else {
                         console.log("Don't do anything I guess, message should remain where it is");
                     }
