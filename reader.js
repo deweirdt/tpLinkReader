@@ -19,6 +19,7 @@ client.on('device-new', (device) => {
     let dayStats = 0;
     plug.emeter.getDayStats(2020, 11).then(data => {
         let date_ob = new Date().getDate() - 1;
+        console.log("day_list is: ", data.day_list);
         dayStats = data.day_list[date_ob].energy_wh;
         
         let iotData = {
@@ -30,7 +31,7 @@ client.on('device-new', (device) => {
                 voltage: emeterRealtime.voltage,
                 power: emeterRealtime.power,
                 current: emeterRealtime.current,
-                daypower : dayStats
+                daypower_kwh : dayStats
             }
         } 
         sendDataToAMQP(iotData);
@@ -44,7 +45,9 @@ function sendDataToAMQP(data) {
   channel.publish(process.env.RABBIT_MQ_EXCHANGE, '', Buffer.from(JSON.stringify(data)));
 }
 
-amqp.connect('amqp://tplink:tplink@192.168.1.103', function (err, conn) {
+amqpConnection = 'amqp://' + process.env.RABBIT_MQ_USERNAME +':'+process.env.RABBIT_MQ_PASSWORD +'@'+process.env.RABBIT_MQ_HOST;
+//amqp.connect('amqp://tplink:tplink@192.168.1.103', function (err, conn) {
+amqp.connect(amqpConnection, function (err, conn) {
   conn.createChannel(function (err, chnl) {
     channel = chnl;
     channel.assertExchange(process.env.RABBIT_MQ_EXCHANGE, 'fanout', {
@@ -53,6 +56,9 @@ amqp.connect('amqp://tplink:tplink@192.168.1.103', function (err, conn) {
     //Create the queue, so that we don't loose the data (on the first time)
     channel.assertQueue(process.env.RABBIT_MQ_QUEUE, {durable: true}, function(err, data) {
       channel.bindQueue(process.env.RABBIT_MQ_QUEUE, process.env.RABBIT_MQ_EXCHANGE, '');
+    });
+    channel.assertQueue(process.env.RABBIT_MQ_QUEUE_TEST, {durable: true}, function(err, data) {
+      channel.bindQueue(process.env.RABBIT_MQ_QUEUE_TEST, process.env.RABBIT_MQ_EXCHANGE, '');
     });
   });
 });
