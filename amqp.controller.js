@@ -88,6 +88,7 @@ module.exports.setupAMQPConnection = function setupAMQPConnection() {
       conn.createChannel(function (err, chnl) {
         channel = chnl;
         console.log("Connect to channel");
+        channel.prefetch(10);
         channel.assertExchange(process.env.RABBIT_MQ_EXCHANGE, 'fanout', {
           durable: true
         });
