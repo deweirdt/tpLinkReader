@@ -9,7 +9,7 @@ const client = new Client();
 // Client events `device-*` also have `bulb-*` and `plug-*` counterparts.
 // Use those if you want only events for those types and not all devices.
 client.on('device-new', (device) => {
-  device.startPolling(1000);
+  device.startPolling(5000);
   
   // Device (Common) Events
   device.on('emeter-realtime-update', (emeterRealtime) => {
