@@ -38,7 +38,7 @@ client.on('device-new', (device) => {
                 daypower_wh : dayStats
             }
         } 
-        //amqp.publishAMQP(iotData);
+        amqp.publishAMQP(iotData);
         console.log("iotData: %s: ", date, iotData);
     });
   });
