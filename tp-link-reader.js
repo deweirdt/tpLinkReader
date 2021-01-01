@@ -18,9 +18,10 @@ client.on('device-new', (device) => {
     let dayStats = 0;
 
     let date = new Date();
-    plug.emeter.getDayStats(2020, date.getMonth() +1 ).then(data => {
+    //console.log('emeterRealtime received is: ', emeterRealtime);
+    plug.emeter.getDayStats(date.getFullYear(), date.getMonth() +1 ).then(data => {
         let date_ob = date.getDate() - 1;
-        console.log("Data received: %s", date);
+        //console.log("Data received: %s", date);
         console.log("day_list is: %s: ", date, data.day_list);
         dayStats = data.day_list[date_ob].energy_wh;
         
@@ -37,7 +38,7 @@ client.on('device-new', (device) => {
                 daypower_wh : dayStats
             }
         } 
-        amqp.publishAMQP(iotData);
+        //amqp.publishAMQP(iotData);
         console.log("iotData: %s: ", date, iotData);
     });
   });
